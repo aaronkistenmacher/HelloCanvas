@@ -82,7 +82,7 @@ function click (event, gl, canvas, aPosition) {
 
   gPoints.push({ x: x, y: y });
 
-  // gl.clear(gl.COLOR_BUFFER_BIT);
+  gl.clear(gl.COLOR_BUFFER_BIT);
 
   var len = gPoints.length;
 
