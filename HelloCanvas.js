@@ -8,8 +8,10 @@ const VSHADER_SOURCE = `
 `
 
 const FSHADER_SOURCE = `
+  precision mediump float;
+  uniform vec4 uFragColor;
   void main() {
-    gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+    gl_FragColor = uFragColor;
   }
 `
 
@@ -61,18 +63,19 @@ function main() {
   var aPosition = gl.getAttribLocation(program, 'aPosition');
   var aPointSize = gl.getAttribLocation(program, 'aPointSize');
 
+  var uFragColor = gl.getUniformLocation(program, 'uFragColor');
+
   gl.vertexAttrib1f(aPointSize, 5.0);
 
-  canvas.onmousedown = function (event) { click (event, gl, canvas, aPosition); };
+  canvas.onmousedown = function (event) { click (event, gl, canvas, aPosition, uFragColor); };
 
   gl.clearColor(0.0, 0.0, 0.0, 1.0);
   gl.clear(gl.COLOR_BUFFER_BIT);
-
-  gl.drawArrays(gl.POINTS, 0, 1);
 }
 
 var gPoints = [];
-function click (event, gl, canvas, aPosition) {
+var gColors = [];
+function click (event, gl, canvas, aPosition, uFragColor) {
   var x = event.clientX;
   var y = event.clientY;
   var rect = event.target.getBoundingClientRect();
@@ -82,12 +85,21 @@ function click (event, gl, canvas, aPosition) {
 
   gPoints.push({ x: x, y: y });
 
+  if (x >= 0.0 && y >= 0.0) {
+    gColors.push({ r: 1.0, g: 0.0, b: 0.0, a:1.0 });
+  } else if (x < 0.0 && y < 0.0) {
+    gColors.push({ r: 0.0, g: 1.0, b: 0.0, a:1.0 });
+  } else {
+    gColors.push({ r: 0.0, g: 0.0, b: 1.0, a:1.0 });
+  }
+
   gl.clear(gl.COLOR_BUFFER_BIT);
 
   var len = gPoints.length;
 
   for (var i = 0; i < len; i++) {
     gl.vertexAttrib3f(aPosition, gPoints[i].x, gPoints[i].y, 0.0);
+    gl.uniform4f(uFragColor, gColors[i].r, gColors[i].g, gColors[i].b, gColors[i].a);
     gl.drawArrays(gl.POINTS, 0, 1);
   }
 }
